@@ -1,7 +1,7 @@
 # Data Lab (CSYS 395, Spring 2020) Challenge #2
 - Assigned 2020/02/18
 - Due 2020/03/10
-- Team 3 - ?:
+- Team 3:
   - Anoob Prakash
   - Jessica Cole
   - Elizabeth Espinosa
@@ -22,8 +22,8 @@
     - Compare the attack rate in people to the attack rate over chiefdoms.
     - Is there any evidence that misinformation or distrust in the intervention lead to
 lower rates of reporting, safe burials and referrals?
-    - Are social mobilizers from dierent organizations getting similar ratings in the
-dierent evaluation metrics?
+    - Are social mobilizers from different organizations getting similar ratings in the
+different evaluation metrics?
 
 ## Solutions
  1.
