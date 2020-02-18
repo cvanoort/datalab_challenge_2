@@ -1,11 +1,10 @@
-from pprint import pprint
+import json
+from multiprocessing import Pool
+from pathlib import Path
 
 import pandas as pd
 import pkg_resources
 from symspellpy import SymSpell
-from multiprocessing import Pool
-import json
-from pathlib import Path
 
 # Configure a global spell checker
 sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
@@ -69,7 +68,8 @@ def clean_smac_data(dfs):
 
     with open(t_q4_map_file) as f:
         t_q4_map = json.load(f)
-    dfs['Trigger Other'].t_q4 = dfs['Trigger Other'].t_q4.str.lower().str.strip().str.replace('  ', ' ').str.strip('.').map(t_q4_map)
+    dfs['Trigger Other'].t_q4 = dfs['Trigger Other'].t_q4.str.lower().str.strip().str.replace('  ', ' ').str.strip(
+        '.').map(t_q4_map)
 
     t_q5_map = {
         'very low': 0,
