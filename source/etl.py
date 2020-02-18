@@ -1,3 +1,8 @@
+"""
+TODO:
+ - dfs['Trigger Other'].t_q4: str -> int (?)
+"""
+
 import json
 from multiprocessing import Pool
 from pathlib import Path
@@ -103,11 +108,9 @@ def make_trigger_other_t_q4_map(dfs, out_file='../data/clean/to_t_q4_map.json'):
 
 
 def fix_spelling_errors(sample, threshold=10):
-    # lookup suggestions for multi-word input strings (supports compound splitting & merging)
-    # max edit distance per lookup (per single word, not per whole input string)
     suggestions = sym_spell.lookup_compound(sample, max_edit_distance=2)
 
-    # The suggestion object has three important attributes:
+    # Suggestion object attributes:
     #  - term: the corrected string
     #  - distance: the edit distance
     #  - count: Naive Bayes probability of the individual suggestion parts
@@ -120,16 +123,10 @@ def fix_spelling_errors(sample, threshold=10):
 
 def main():
     dfs = load_smac_data()
-
     dfs = clean_smac_data(dfs)
-
-    # print(dfs['Trigger Other'].t_q1.unique())
 
     for label, df in sorted(dfs.items()):
         print(f'{label}:\n{df.dtypes}\n\n')
-
-    # TODO:
-    #    - dfs['Trigger Other'].t_q4: str -> int (?)
 
 
 if __name__ == '__main__':
