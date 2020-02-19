@@ -35,3 +35,8 @@ different evaluation metrics?
  - [Dataset](https://figshare.com/articles/Social_Mobilization_Action_Consortium_Community_Engagement_data_from_the_2014-2016_Sierra_Leone_Ebola_outbreak/8247002)
  - [Paper 1](https://www.biorxiv.org/content/10.1101/661959v1)
  - [Paper 2](https://www.pnas.org/content/113/16/4488)
+ 
+## Notes on Sierra Leon:
+ - Divided into [5 administrative regions](https://en.wikipedia.org/wiki/Provinces_of_Sierra_Leone)
+ - Further divided into [16 Districts](https://en.wikipedia.org/wiki/Districts_of_Sierra_Leone)
+ - Further divided into [186 chiefdoms](https://en.wikipedia.org/wiki/Chiefdoms_of_Sierra_Leone)
