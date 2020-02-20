@@ -6,6 +6,7 @@ TODO:
 import json
 from multiprocessing import Pool
 from pathlib import Path
+from pprint import pprint
 
 import pandas as pd
 import pkg_resources
@@ -125,8 +126,10 @@ def main():
     dfs = load_smac_data()
     dfs = clean_smac_data(dfs)
 
-    for label, df in sorted(dfs.items()):
-        print(f'{label}:\n{df.dtypes}\n\n')
+    # for label, df in sorted(dfs.items()):
+    #     print(f'{label}:\n{df.dtypes}\n\n')
+
+    pprint(sorted(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique()))
 
 
 if __name__ == '__main__':
