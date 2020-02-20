@@ -56,6 +56,11 @@ def clean_smac_data(dfs):
     dfs['Follow Up'].r_mc = dfs['Follow Up'].r_mc.map(clean_int_col_map)
     dfs['Follow Up'].r_fa = dfs['Follow Up'].r_fa.map(clean_int_col_map)
 
+    # Fill in the Children column when it is NA and Male_child + Female_child are not NA
+    index = dfs['Trigger_Ave'].Children.isna() & ~dfs['Trigger_Ave'].Male_child.isna() & ~dfs['Trigger_Ave'].Female_child.isna()
+    dfs['Trigger_Ave'].Children[index] = dfs['Trigger_Ave'].Male_child[index] + dfs['Trigger_Ave'].Female_child[index]
+
+    # Map the time since last ebola case question from a string to an approximate Timedelta
     t_q1_map = {
         'last week': pd.Timedelta(days=7),
         '2-3 weeks': pd.Timedelta(days=17, hours=6),
@@ -66,6 +71,7 @@ def clean_smac_data(dfs):
     }
     dfs['Trigger Other'].t_q1 = dfs['Trigger Other'].t_q1.str.strip().str.lower().map(t_q1_map)
 
+    # Clean up t_q4 column with a partially automated, partially hand-curated map
     # What is the position of the champion?
     # Champion is a local who is supposed to lead community response to ebola
     t_q4_map_file = '../data/clean/to_t_q4_map.json'
@@ -77,6 +83,7 @@ def clean_smac_data(dfs):
     dfs['Trigger Other'].t_q4 = dfs['Trigger Other'].t_q4.str.lower().str.strip().str.replace('  ', ' ').str.strip(
         '.').map(t_q4_map)
 
+    # Map the t_q5 column from a string response to a categorical variable
     t_q5_map = {
         'very low': 0,
         'low': 1,
@@ -129,7 +136,8 @@ def main():
     # for label, df in sorted(dfs.items()):
     #     print(f'{label}:\n{df.dtypes}\n\n')
 
-    pprint(sorted(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique()))
+    print(dfs['Trigger_Ave'].Children)
+    # pprint(sorted(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique()))
 
 
 if __name__ == '__main__':
