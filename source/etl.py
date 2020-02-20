@@ -58,7 +58,7 @@ def clean_smac_data(dfs):
 
     # Fill in the Children column when it is NA and Male_child + Female_child are not NA
     index = dfs['Trigger_Ave'].Children.isna() & ~dfs['Trigger_Ave'].Male_child.isna() & ~dfs['Trigger_Ave'].Female_child.isna()
-    dfs['Trigger_Ave'].Children[index] = dfs['Trigger_Ave'].Male_child[index] + dfs['Trigger_Ave'].Female_child[index]
+    dfs['Trigger_Ave'].Children.loc[index] = dfs['Trigger_Ave'].Male_child.loc[index] + dfs['Trigger_Ave'].Female_child.loc[index]
 
     # Map the time since last ebola case question from a string to an approximate Timedelta
     t_q1_map = {
@@ -136,8 +136,7 @@ def main():
     # for label, df in sorted(dfs.items()):
     #     print(f'{label}:\n{df.dtypes}\n\n')
 
-    print(dfs['Trigger_Ave'].Children)
-    # pprint(sorted(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique()))
+    pprint(sorted(dfs['Follow Up Other'].Date_of_Visit.dropna().unique()))
 
 
 if __name__ == '__main__':
