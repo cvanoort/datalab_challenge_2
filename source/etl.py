@@ -3,6 +3,7 @@ TODO:
  - dfs['Trigger Other'].t_q4: str -> int (?)
 """
 
+import argparse
 import json
 from multiprocessing import Pool
 from pathlib import Path
@@ -11,7 +12,7 @@ import pandas as pd
 import pkg_resources
 from symspellpy import SymSpell
 
-# Configure a global spell checker
+# Global spell checker configuration
 sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 dictionary_path = pkg_resources.resource_filename(
     "symspellpy",
@@ -26,9 +27,82 @@ sym_spell.load_dictionary(dictionary_path, term_index=0, count_index=1)
 sym_spell.load_bigram_dictionary(bigram_path, term_index=0, count_index=2)
 
 
+def get_parser():
+    def parse_bool(x):
+        return x.lower() in {'true', 't', '1'}
+
+    parser = argparse.ArgumentParser(
+        description="Functions and tools to clean and load the SMAC data for Data Lab challenge 2.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    parser.add_argument(
+        '--clean_data',
+        type=parse_bool,
+        default=True,
+        help='Applies automated cleaning procedures to the SMAC data.',
+    )
+    parser.add_argument(
+        '--data_kind',
+        type=lambda x: x.lower(),
+        default='clean',
+        choices=['clean', 'raw'],
+        help='Determines the data flavor that is loaded. '
+             'clean has been manually curated and raw is unchanged.',
+    )
+    parser.add_argument(
+        '--save_csvs',
+        type=parse_bool,
+        default=False,
+        help='Saves data CSVs before automated cleaning has been applied.',
+    )
+    parser.add_argument(
+        '--save_clean_csvs',
+        type=parse_bool,
+        default=False,
+        help='Saves data CSVs after automated cleaning has been applied.',
+    )
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        action='count',
+        default=0,
+        help='Determines the level of terminal output.'
+    )
+
+    return parser
+
+
+def main(
+        clean_data=True,
+        data_kind='clean',
+        save_csvs=False,
+        save_clean_csvs=False,
+        verbose=False,
+):
+    dfs = load_smac_data(data_kind=data_kind)
+
+    if save_csvs:
+        for sheet, df in sorted(dfs.items()):
+            df.to_csv(f'../data/{data_kind}/all_paper_data_{sheet.strip().replace(" ", "_")}.csv', index=False)
+
+    if clean_data:
+        dfs = clean_smac_data(dfs)
+
+    if save_clean_csvs:
+        for sheet, df in sorted(dfs.items()):
+            df.to_csv(f'../data/{data_kind}/all_paper_data_{sheet.strip().replace(" ", "_")}_clean.csv', index=False)
+
+    if verbose:
+        for label, df in sorted(dfs.items()):
+            print(f'{label}:\n{df.dtypes}\n\n')
+
+    # pprint(sorted(dfs['Follow Up Other'].Date_of_Visit.dropna().unique()))
+
+
 def load_smac_data(data_kind='clean'):
     return {
-        path.stem.strip('all_paper_data_'): pd.read_csv(path)
+        path.stem.replace('all_paper_data_', ''): pd.read_csv(path)
         for path in sorted(Path(f'../data/{data_kind}').glob('*.csv'))
     }
 
@@ -58,13 +132,20 @@ def clean_smac_data(dfs):
     for i in range(100):
         clean_int_col_map[i] = i
 
-    dfs['Follow Up'].Children = dfs['Follow Up'].Children.map(clean_int_col_map)
-    dfs['Follow Up'].r_mc = dfs['Follow Up'].r_mc.map(clean_int_col_map)
-    dfs['Follow Up'].r_fa = dfs['Follow Up'].r_fa.map(clean_int_col_map)
+    dfs['Follow_Up'].Children = dfs['Follow_Up'].Children.map(clean_int_col_map)
+    dfs['Follow_Up'].r_mc = dfs['Follow_Up'].r_mc.map(clean_int_col_map)
+    dfs['Follow_Up'].r_fa = dfs['Follow_Up'].r_fa.map(clean_int_col_map)
 
     # Fill in the Children column when it is NA and Male_child + Female_child are not NA
-    index = dfs['Trigger_Ave'].Children.isna() & ~dfs['Trigger_Ave'].Male_child.isna() & ~dfs['Trigger_Ave'].Female_child.isna()
-    dfs['Trigger_Ave'].Children.loc[index] = dfs['Trigger_Ave'].Male_child.loc[index] + dfs['Trigger_Ave'].Female_child.loc[index]
+    index = (
+            dfs['Trigger_Ave'].Children.isna() &
+            ~dfs['Trigger_Ave'].Male_child.isna() &
+            ~dfs['Trigger_Ave'].Female_child.isna()
+    )
+    dfs['Trigger_Ave'].Children.loc[index] = (
+            dfs['Trigger_Ave'].Male_child.loc[index] +
+            dfs['Trigger_Ave'].Female_child.loc[index]
+    )
 
     # Map the time since last ebola case question from a string to an approximate Timedelta
     t_q1_map = {
@@ -75,7 +156,7 @@ def clean_smac_data(dfs):
         '4 weeks 0r m0re': pd.Timedelta(days=28),
         '5 weeks or more': pd.Timedelta(days=35),
     }
-    dfs['Trigger Other'].t_q1 = dfs['Trigger Other'].t_q1.str.strip().str.lower().map(t_q1_map)
+    dfs['Trigger_Other'].t_q1 = dfs['Trigger_Other'].t_q1.str.strip().str.lower().map(t_q1_map)
 
     # Clean up t_q4 column with a partially automated, partially hand-curated map
     # What is the position of the champion?
@@ -86,8 +167,14 @@ def clean_smac_data(dfs):
 
     with open(t_q4_map_file) as f:
         t_q4_map = json.load(f)
-    dfs['Trigger Other'].t_q4 = dfs['Trigger Other'].t_q4.str.lower().str.strip().str.replace('  ', ' ').str.strip(
-        '.').map(t_q4_map)
+    dfs['Trigger_Other'].t_q4 = (
+        dfs['Trigger_Other'].t_q4
+            .str.lower()
+            .str.strip()
+            .str.replace('  ', ' ')
+            .str.strip('.')
+            .map(t_q4_map)
+    )
 
     # Map the t_q5 column from a string response to a categorical variable
     t_q5_map = {
@@ -98,14 +185,20 @@ def clean_smac_data(dfs):
         'very high': 4,
         'very hig': 4,
     }
-    dfs['Trigger Other'].t_q5 = dfs['Trigger Other'].t_q5.str.strip().str.lower().map(t_q5_map)
+    dfs['Trigger_Other'].t_q5 = dfs['Trigger_Other'].t_q5.str.strip().str.lower().map(t_q5_map)
 
     return dfs
 
 
 def make_trigger_other_t_q4_map(dfs, out_file='../data/column_maps/to_t_q4_map.json'):
     positions = sorted(
-        dfs['Trigger Other'].t_q4.str.lower().str.strip().str.replace('  ', ' ').str.strip('.').dropna().unique()
+        dfs['Trigger Other'].t_q4
+            .str.lower()
+            .str.strip()
+            .str.replace('  ', ' ')
+            .str.strip('.')
+            .dropna()
+            .unique()
     )
     with Pool() as pool:
         fixed_positions = pool.map(fix_spelling_errors, positions)
@@ -135,20 +228,5 @@ def fix_spelling_errors(sample, threshold=10):
         return sample
 
 
-def main(save_csvs=False, data_kind='clean'):
-    dfs = load_smac_data(data_kind=data_kind)
-
-    if save_csvs:
-        for sheet, df in sorted(dfs.items()):
-            df.to_csv(f'../data/raw/all_paper_data_{sheet.strip().replace(" ", "_")}.csv', index=False)
-
-    # dfs = clean_smac_data(dfs)
-
-    # for label, df in sorted(dfs.items()):
-    #     print(f'{label}:\n{df.dtypes}\n\n')
-
-    # pprint(sorted(dfs['Follow Up Other'].Date_of_Visit.dropna().unique()))
-
-
 if __name__ == '__main__':
-    main()
+    main(**vars(get_parser().parse_args()))
