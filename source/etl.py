@@ -158,23 +158,28 @@ def clean_smac_data(dfs):
     }
     dfs['Trigger_Other'].t_q1 = dfs['Trigger_Other'].t_q1.str.strip().str.lower().map(t_q1_map)
 
-    # Clean up t_q4 column with a partially automated, partially hand-curated map
-    # What is the position of the champion?
-    # Champion is a local who is supposed to lead community response to ebola
-    t_q4_map_file = '../data/column_maps/to_t_q4_map.json'
-    if not Path(t_q4_map_file).is_file():
-        make_trigger_other_t_q4_map(dfs)
+    # Clean up the text based columns
+    sheets = ['Trigger_Other', 'Follow_Up_Other']
+    str_colz = [
+        ['t_q4', 't_q6', 't_q7', 't_q8', 't_q9', 't_q10', 't_q11'],
+        ['f_q2', 'f_q3', 'f_q4', 'f_q5', 'f_q6'],
+    ]
 
-    with open(t_q4_map_file) as f:
-        t_q4_map = json.load(f)
-    dfs['Trigger_Other'].t_q4 = (
-        dfs['Trigger_Other'].t_q4
-            .str.lower()
-            .str.strip()
-            .str.replace('  ', ' ')
-            .str.strip('.')
-            .map(t_q4_map)
-    )
+    for sheet, str_cols in zip(sheets, str_colz):
+        for str_col in str_cols:
+            map_file = f'../data/column_maps/{sheet}_{str_col}_map.json'
+            if not Path(map_file).is_file():
+                make_spelling_correction_map(dfs, sheet=sheet, col=str_col)
+
+            with open(map_file) as f:
+                str_col_map = json.load(f)
+            dfs[sheet][str_col] = (
+                dfs[sheet][str_col]
+                    .str.lower()
+                    .str.strip(' .,\"')
+                    .str.replace('  ', ' ')
+                    .map(str_col_map)
+            )
 
     # Map the t_q5 column from a string response to a categorical variable
     t_q5_map = {
@@ -190,20 +195,14 @@ def clean_smac_data(dfs):
     return dfs
 
 
-def make_trigger_other_t_q4_map(dfs, out_file='../data/column_maps/to_t_q4_map.json'):
+def make_spelling_correction_map(dfs, sheet, col):
     positions = sorted(
-        dfs['Trigger Other'].t_q4
-            .str.lower()
-            .str.strip()
-            .str.replace('  ', ' ')
-            .str.strip('.')
-            .dropna()
-            .unique()
+        dfs[sheet][col].str.lower().str.strip(' .,\"').str.replace('  ', ' ').dropna().unique()
     )
     with Pool() as pool:
         fixed_positions = pool.map(fix_spelling_errors, positions)
 
-    with open(out_file, 'w') as f:
+    with open(f'../data/column_maps/{sheet}_{col}_map.json', 'w') as f:
         json.dump({
             x: y
             for x, y in zip(positions, fixed_positions)
@@ -214,7 +213,7 @@ def make_trigger_other_t_q4_map(dfs, out_file='../data/column_maps/to_t_q4_map.j
         )
 
 
-def fix_spelling_errors(sample, threshold=10):
+def fix_spelling_errors(sample, threshold=1):
     suggestions = sym_spell.lookup_compound(sample, max_edit_distance=2)
 
     # Suggestion object attributes:
