@@ -1,0 +1,67 @@
+Code,Interpretation
+Trig_date,Date of first visit
+District,District name
+Chiefdom,Chiefdom name
+Section,Section name
+Name_of_community,Community name
+Male_child,# of male children
+Male_Adult,# of adult males
+Total_male,# of males
+Female_child,# of female children
+Female_adult,# of female adults
+Total_female,# of females
+Name_mob,Name of mobilizer
+Chiefs,# chiefs
+Youth_leaders,# youth leaders
+Religious_leaders,# religious leaders
+Police,# police representative
+Women_leaders,# of women leaders
+Health_workers,# of health workers
+Children,# children
+ss_mc,Seriously sick male child
+ss_fc,Seriously sick female child
+ss_ma,Seriously sick male adult
+ss_fa,Seriously sick female adult
+r_mc,Male child referred
+r_fc,Female child referred
+r_ma,Male adult referred
+r_fa,Female adult referred
+d_mc,Male child total deaths
+d_fc,Female child total deaths
+d_ma,Male adult total deaths
+d_fa,Female adult total deaths
+b_mc,Male child safe burials
+b_fc,Female child safe burials
+b_ma,Male adult safe burials
+b_fa,Female adult safe burials
+cb_mc,Male child Common burials
+cb_fc,Female child common burials
+cb_ma,Male adult common burials
+cb_fa,Female adult common burials
+,
+t_q1,"If there has been an Ebola case, how long since the last one?  "
+t_q2,Did community develop an action plan? (Yes/No)
+t_q3,"Identify a champion to be your point of contact? (1=yes, 0=no)"
+t_q4,What is the position of the champion?
+t_q5,How would you rate the outcome of the session today? (1. very Low - 5. Very High) 
+t_q6,Ebola related most common concerns expressed?
+t_q7,Most commonly asked questions?
+t_q8,What did the community initially assess and rank as key risks for catching Ebola?
+t_q9,What bye-laws have been developed on Ebola in this community? Please any examples of bye laws implementation.
+t_q10,What else did you hear in the community discussions that you think is important to note?
+t_q11,Do you have any concerns about the community’s capacity to carry out the action plan? What might be some of the obstacles?
+,
+a_q1,"Did the community develop an Action Plan?  (1=yes, 1=no)"
+Action_point,Description of action plan.
+Comment,Comment for week 1 (trigger)
+Comment.1,Comment for week 2
+Comment.2,Comment for week 3
+,
+Date_of_visit,Date of follow-up visit
+Grand_total,Total # of people during follow-up visit
+f_q1,Was the community satisfied with the way the burial team conducted the burials? (Yes=1 No=0)      
+f_q2,"If yes to f_q1, why?"
+f_q3,"If no to f_q1, why?"
+f_q4,"This week, what are the most common concerns expressed by members of this community related to Ebola?"
+f_q5,What has been the biggest change?
+f_q6,What are the most common concerns/questions expressed by the community members related to Ebola?    

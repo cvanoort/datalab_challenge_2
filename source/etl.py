@@ -6,7 +6,6 @@ TODO:
 import json
 from multiprocessing import Pool
 from pathlib import Path
-from pprint import pprint
 
 import pandas as pd
 import pkg_resources
@@ -27,7 +26,14 @@ sym_spell.load_dictionary(dictionary_path, term_index=0, count_index=1)
 sym_spell.load_bigram_dictionary(bigram_path, term_index=0, count_index=2)
 
 
-def load_smac_data(path='../data/clean/all_paper_data.xlsx'):
+def load_smac_data(data_kind='clean'):
+    return {
+        path.stem.strip('all_paper_data_'): pd.read_csv(path)
+        for path in sorted(Path(f'../data/{data_kind}').glob('*.csv'))
+    }
+
+
+def load_smac_data_old(path='../data/clean/all_paper_data.xlsx'):
     dfs = pd.read_excel(
         path,
         sheet_name=[
@@ -74,7 +80,7 @@ def clean_smac_data(dfs):
     # Clean up t_q4 column with a partially automated, partially hand-curated map
     # What is the position of the champion?
     # Champion is a local who is supposed to lead community response to ebola
-    t_q4_map_file = '../data/clean/to_t_q4_map.json'
+    t_q4_map_file = '../data/column_maps/to_t_q4_map.json'
     if not Path(t_q4_map_file).is_file():
         make_trigger_other_t_q4_map(dfs)
 
@@ -97,7 +103,7 @@ def clean_smac_data(dfs):
     return dfs
 
 
-def make_trigger_other_t_q4_map(dfs, out_file='../data/clean/to_t_q4_map.json'):
+def make_trigger_other_t_q4_map(dfs, out_file='../data/column_maps/to_t_q4_map.json'):
     positions = sorted(
         dfs['Trigger Other'].t_q4.str.lower().str.strip().str.replace('  ', ' ').str.strip('.').dropna().unique()
     )
@@ -129,14 +135,19 @@ def fix_spelling_errors(sample, threshold=10):
         return sample
 
 
-def main():
-    dfs = load_smac_data()
-    dfs = clean_smac_data(dfs)
+def main(save_csvs=False, data_kind='clean'):
+    dfs = load_smac_data(data_kind=data_kind)
+
+    if save_csvs:
+        for sheet, df in sorted(dfs.items()):
+            df.to_csv(f'../data/raw/all_paper_data_{sheet.strip().replace(" ", "_")}.csv', index=False)
+
+    # dfs = clean_smac_data(dfs)
 
     # for label, df in sorted(dfs.items()):
     #     print(f'{label}:\n{df.dtypes}\n\n')
 
-    pprint(sorted(dfs['Follow Up Other'].Date_of_Visit.dropna().unique()))
+    # pprint(sorted(dfs['Follow Up Other'].Date_of_Visit.dropna().unique()))
 
 
 if __name__ == '__main__':
