@@ -97,7 +97,10 @@ def main(
         for label, df in sorted(dfs.items()):
             print(f'{label}:\n{df.dtypes}\n\n')
 
-    # pprint(sorted(dfs['Follow Up Other'].Date_of_Visit.dropna().unique()))
+    from pprint import pprint
+    pprint(sorted(dfs['Trigger_Ave'].District.dropna().str.strip().unique()))
+    pprint(sorted(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique()))
+    pprint(sorted(dfs['Trigger_Ave'].Section.dropna().str.strip().unique()))
 
 
 def load_smac_data(data_kind='clean'):
