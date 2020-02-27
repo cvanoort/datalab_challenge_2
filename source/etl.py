@@ -12,6 +12,8 @@ import pandas as pd
 import pkg_resources
 from symspellpy import SymSpell
 
+import sierra_leone
+
 # Global spell checker configuration
 sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 dictionary_path = pkg_resources.resource_filename(
@@ -98,9 +100,12 @@ def main(
             print(f'{label}:\n{df.dtypes}\n\n')
 
     from pprint import pprint
-    pprint(sorted(dfs['Trigger_Ave'].District.dropna().str.strip().unique()))
-    pprint(sorted(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique()))
-    pprint(sorted(dfs['Trigger_Ave'].Section.dropna().str.strip().unique()))
+
+    data_chiefdoms = set(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique())
+    data_sections = set(dfs['Trigger_Ave'].Section.dropna().str.strip().unique())
+
+    pprint(data_chiefdoms - set(sierra_leone.chiefdoms))
+    pprint(data_sections - set(sierra_leone.sections))
 
 
 def load_smac_data(data_kind='clean'):

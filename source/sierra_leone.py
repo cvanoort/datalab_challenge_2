@@ -63,7 +63,8 @@ district2chiefdoms = {
         'Tambakha',
     ],
     'Bonthe': [
-        'Bendu',
+        'Bendu-Cha',
+        'Bonthe Urban',
         'Bum',
         'Dema',
         'Imperri',
@@ -77,7 +78,7 @@ district2chiefdoms = {
     ],
     'Kailahun': [
         'Dea',
-        'Jaluahun',
+        'Njaluahun',
         'Jawei',
         'Kissi Kama',
         'Kissi Teng',
@@ -184,11 +185,11 @@ district2chiefdoms = {
         'Kpanga Krim',
         'Makpele',
         'Malen',
-        'Mano Sakrim',
+        'Mono Sakrim',
         'Peje',
         'Soro Gbema',
         'Sowa',
-        'Yakemo Kpukumu Krim',
+        'Yakemu Kpukumu Krim',
     ],
     'Tonkolili': [
         'Gbonkolenken',
@@ -277,7 +278,7 @@ chiefdom2sections = {
         'Sonjour 2',
         'Tetima',
     ],
-    'Bendu-cha': [
+    'Bendu-Cha': [
         'Gba-cha',
         'Sokenteh',
         'Tissagbe',
@@ -299,6 +300,9 @@ chiefdom2sections = {
         'Kagbaran Dokom',
         'Konta',
         'Matotoka',
+    ],
+    'Bonthe Urban': [
+        'Bonthe Town',
     ],
     'Bramaia': [
         'Banguraia',
@@ -590,7 +594,7 @@ chiefdom2sections = {
         'Gbendekor',
         'Yanbidu',
     ],
-    'Gbanti Kamarank': [
+    'Gbanti Kamaranka': [
         'Gbenkfay',
         'Gbonkobana',
         'Kambia',
@@ -1188,7 +1192,7 @@ chiefdom2sections = {
         'Lower Kuiva',
         'Upper Kuiva',
     ],
-    'Mano Sakrim': [
+    'Mono Sakrim': [
         'Gbomotie',
         'Kemoh',
         'Makpondo',
