@@ -104,7 +104,7 @@ def main(
     data_chiefdoms = set(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique())
     data_sections = set(dfs['Trigger_Ave'].Section.dropna().str.strip().unique())
 
-    pprint(data_chiefdoms - set(sierra_leone.chiefdoms))
+    pprint(sorted(data_chiefdoms - set(sierra_leone.chiefdoms)))
     pprint(data_sections - set(sierra_leone.sections))
 
 

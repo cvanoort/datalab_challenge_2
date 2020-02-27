@@ -10,12 +10,13 @@ Notes:
         - https://en.wikipedia.org/wiki/Falaba_District
         - https://en.wikipedia.org/wiki/Karene_District
         - The number of Chiefdoms also increased from 149 to 190.
-        - We are concerned with the structure from 2014.
+        - We are concerned with the structure from 2014-2015,
+            so these new districts/chiefdoms are not included.
 
 Issues:
     - How to handle Bo Town. It's not really a Chiefdom, but seems to be a separate entity?
         - Seems to be split into 3 Wards, each with several sections.
-    - Do the Western Urban and Western Rural districts have Chiefdoms?
+    - Similarly, Koidu Town in Kono.
 """
 
 #
@@ -1796,6 +1797,9 @@ chiefdoms = sorted(chiefdom2sections.keys())
 sections = sorted([y for x in chiefdom2sections.values() for y in x])
 
 
+#
+# Tests to ensure agreement between the different mappings and lists
+#
 def test_districts():
     districts_p = sorted([district for districts in province2districts.values() for district in districts])
     assert districts == districts_p
