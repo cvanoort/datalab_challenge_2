@@ -23,8 +23,8 @@ Issues:
 #
 province2districts = {
     'Eastern': ['Kailahun', 'Kenema', 'Kono'],
-    'North West': ['Kambia', 'Karene', 'Port Loko'],
-    'Northern': ['Bombali', 'Falaba', 'Koinadugu', 'Tonkolili'],
+    'North West': ['Kambia', 'Port Loko'],
+    'Northern': ['Bombali', 'Koinadugu', 'Tonkolili'],
     'Southern': ['Bo', 'Bonthe', 'Moyamba', 'Pujehun'],
     'Western': ['Western Rural', 'Western Urban'],
 }
@@ -53,12 +53,12 @@ district2chiefdoms = {
         'Gbanti Kamaranka',
         'Gbendembu Ngowahun',
         'Libeisaygahun',
-        'Magbaiamba Ndowahun',
+        'Magbaimba Ndorh',
         'Makari Gbanti',
-        'Paki Massabong',
+        'Paki Masabong',
         'Safroko Limba',
         'Sanda Loko',
-        'Sanda Tenraren',
+        'Sanda Tendaran',
         'Sella Limba',
         'Tambakha',
     ],
@@ -69,31 +69,31 @@ district2chiefdoms = {
         'Dema',
         'Imperri',
         'Jong',
-        'Kongoba Bullom',
-        'Kpanda',
+        'Kpanda Kemo',
         'Kwamebai Krim',
+        'Nongoba Bullom',
         'Sittia',
-        'Songbini',
+        'Sogbeni',
         'Yawbeko',
     ],
     'Kailahun': [
         'Dea',
-        'Njaluahun',
         'Jawei',
         'Kissi Kama',
         'Kissi Teng',
         'Kissi Tongi',
+        'Kpeje Bongre',
+        'Kpeje West',
         'Luawa',
         'Malema',
         'Mandu',
-        'Peje Bongre',
-        'Peje West',
+        'Njaluahun',
         'Penguia',
         'Upper Bambara',
         'Yawei',
     ],
     'Kambia': [
-        'Brimaia',
+        'Bramaia',
         'Gbinle Dixing',
         'Magbema',
         'Mambolo',
@@ -106,9 +106,9 @@ district2chiefdoms = {
         'Dodo',
         'Gaura',
         'Gorama Mende',
-        'Kandu Leppiam',
-        'Koya',
-        'Langurama Ya',
+        'Kandu Leppiama',
+        'Koya (Kenema)',
+        'Langrama',
         'Lower Bambara',
         'Malegohun',
         'Niawa',
@@ -117,12 +117,12 @@ district2chiefdoms = {
         'Simbaru',
         'Small Bo',
         'Tunkia',
-        'Wando',
+        'Wandor',
     ],
     'Koinadugu': [
-        'Dembelia Sikunia',
+        'Dembelia Sinkunia',
         'Diang',
-        'Folasaba',
+        'Folosaba Dembelia',
         'Kasunko',
         'Mongo',
         'Neya',
@@ -150,7 +150,6 @@ district2chiefdoms = {
     ],
     'Moyamba': [
         'Bagruwa',
-        'Banta',
         'Bumpe',
         'Dasse',
         'Fakunya',
@@ -160,6 +159,7 @@ district2chiefdoms = {
         'Kongbora',
         'Kori',
         'Kowa',
+        'Lower Banta',
         'Ribbi',
         'Timdale',
         'Upper Banta',
@@ -169,10 +169,10 @@ district2chiefdoms = {
         'Buya Romende',
         'Debia',
         'Kaffu Bullom',
-        'Koya',
-        'Loko Masama',
+        'Koya (Port Loko)',
+        'Lokomasama',
         'Maforki',
-        'Marampa'
+        'Marampa',
         'Masimera',
         'Sanda Magbolontor',
         'T.M. Safroko',
@@ -194,7 +194,7 @@ district2chiefdoms = {
     'Tonkolili': [
         'Gbonkolenken',
         'Kafe Simiria',
-        'Kalansongoia',
+        'Kalansogoia',
         'Kholifa Mabang',
         'Kholifa Rowalla',
         'Kunike Barina',
@@ -637,7 +637,7 @@ chiefdom2sections = {
         'Moindefeh',
         'Moindekor',
     ],
-    'Gbinleh Dixing': [
+    'Gbinle Dixing': [
         'Gbinle',
         'Kalangba',
         'Katalan',
@@ -722,7 +722,7 @@ chiefdom2sections = {
         'Mayaso',
         'Simiria',
     ],
-    'Kaffu-Bullom': [
+    'Kaffu Bullom': [
         'Foronkoya',
         'Kasongha',
         'Lungi',
@@ -1208,7 +1208,6 @@ chiefdom2sections = {
         'Magbele',
         'Mange',
         'Marampa',
-        'Marampa',
         'Mawullay',
         'Petifu Madina',
         'Rogballan',
@@ -1429,7 +1428,7 @@ chiefdom2sections = {
         'Sendugu',
         'Yankabala',
     ],
-    'Sanda Magbolont': [
+    'Sanda Magbolontor': [
         'Bankro',
         'Gbaneh-Loko',
         'Gbogbodo',
@@ -1769,7 +1768,6 @@ chiefdom2sections = {
     ],
 }
 
-
 #
 # Reverse mappings (smaller -> larger)
 #
@@ -1789,7 +1787,6 @@ section2chiefdom = {
     for section in sections
 }
 
-
 #
 # Lists
 #
@@ -1797,3 +1794,18 @@ provinces = sorted(province2districts.keys())
 districts = sorted(district2chiefdoms.keys())
 chiefdoms = sorted(chiefdom2sections.keys())
 sections = sorted([y for x in chiefdom2sections.values() for y in x])
+
+
+def test_districts():
+    districts_p = sorted([district for districts in province2districts.values() for district in districts])
+    assert districts == districts_p
+
+
+def test_chiefdoms():
+    chiefdoms_d = sorted([chiefdom for chiefdoms in district2chiefdoms.values() for chiefdom in chiefdoms])
+    assert chiefdoms == chiefdoms_d
+
+
+def test_sections():
+    sections_c = sorted([section for sections in chiefdom2sections.values() for section in sections])
+    assert sections == sections_c
