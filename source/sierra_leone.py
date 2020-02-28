@@ -226,7 +226,7 @@ district2chiefdoms = {
 chiefdom2sections = {
     'Badjia': [
         # Possibly one more section, missing name on map
-        'Damal',
+        'Damai',
         'Kpallay',
         'Njargbahun',
         'Sei',
@@ -409,7 +409,7 @@ chiefdom2sections = {
         'Sanders Brook',
     ],
     'Dasse': [
-        'Bambuibu',
+        'Bambuibu Tommy',
         'Bongoya',
         'Domboma',
         'Foya Tewei',
@@ -918,6 +918,8 @@ chiefdom2sections = {
     'Kpaka': [
         'Jassende Kpeima',
         'Jassende Masaoma',
+        'Jassende Ngoleima',
+        'Nyango-Ngoleihun',
         'Nyango-Njeigbla',
         'Parvu',
         'Sarbah',
@@ -1080,6 +1082,7 @@ chiefdom2sections = {
         'Fenka',
         'Gberray Bana',
         'Gberray Morie',
+        'Gberray Thunkara',
         'Gbonko Mayira',
         'Kabata',
         'Komrabi-Waterloo',
