@@ -1347,7 +1347,7 @@ chiefdom2sections = {
     ],
     'Paki Masabong': [
         'Kathanthan',
-        'Kathegaya',
+        'Kathegeya',
         'Mapaki',
         'Masabong',
         'Mayagba',
@@ -1381,7 +1381,7 @@ chiefdom2sections = {
         'Binkolo',
         'Bombali Bana',
         'Kabonka',
-        'Kasengben',
+        'Kasengbeh',
         'Kayassi',
         'Mabamba',
         'Masapi',
