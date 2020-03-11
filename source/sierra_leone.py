@@ -604,6 +604,8 @@ chiefdom2sections = {
         'Makulon',
         'Makumray A',
         'Makumray B',
+        'Rogberay',
+        'Romaneh',
         'Royeama A',
         'Royeama B',
         'Sakuma A',
@@ -1390,7 +1392,7 @@ chiefdom2sections = {
         'Borowah',
         'Buyan',
         'Dayie',
-        'Sambaya',
+        'Sambaia',
     ],
     'Samu': [
         'Bubuya',
