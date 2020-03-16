@@ -713,7 +713,7 @@ chiefdom2sections = {
         'Beyinga',
         'Falewuja',
         'Kumabeh-Kwe',
-        'Landi-Ngere',
+        'Landi Ngere',
         'Sopan-Cleveland',
         'Tucker-Nyambe',
     ],
@@ -821,7 +821,7 @@ chiefdom2sections = {
     ],
     'Kholifa Rowalla': [
         'Bo Road',
-        'Lal-Lenken',
+        'Lal Lenken',
         'Mamuntha',
         'Mayatha',
         'Mayossoh',
@@ -977,7 +977,7 @@ chiefdom2sections = {
     'Kunike Barina': [
         'Mamurie',
         'Makali',
-        'Mathokara',
+        'Mathonkara',
         'Wonkibor',
         'Masaba',
         'Makong',
@@ -1210,12 +1210,12 @@ chiefdom2sections = {
         'Sowa',
     ],
     'Marampa': [
-        'Lunsar-Mines',
-        'Lunsar-Path',
         'Magbele',
         'Mange',
         'Marampa',
         'Mawullay',
+        'Mines',
+        'Path Bana',
         'Petifu Madina',
         'Rogballan',
         'Rolankonoh',
@@ -1278,7 +1278,7 @@ chiefdom2sections = {
         'Vaama',
     ],
     'Niawa Lenga': [
-        # Possibly one more section, missing name on map
+        # Possibly two more sections, missing names on map
         'Baimba',
         'Yalenga',
     ],
@@ -1380,7 +1380,8 @@ chiefdom2sections = {
         'Yoni',
     ],
     'Safroko Limba': [
-        'Binkolo',
+        'Binkolo 1',
+        'Binkolo 2',
         'Bombali Bana',
         'Kabonka',
         'Kasengbeh',
@@ -1463,7 +1464,7 @@ chiefdom2sections = {
     ],
     'Selenga': [
         'Kaduawo',
-        'Mokpehdeh',
+        'Mokpendeh',
         'Old Town',
     ],
     'Sella Limba': [
@@ -1524,7 +1525,7 @@ chiefdom2sections = {
         'Kemokai',
         'Kengo',
         'Kiazombo',
-        'Mano-River',
+        'Mano River',
         'Massaquoi 1',
         'Massaquoi 2',
         'Moiwebu',
