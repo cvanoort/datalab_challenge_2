@@ -1,12 +1,11 @@
 """
-TODO:
- - dfs['Trigger Other'].t_q4: str -> int (?)
 """
 
 import argparse
 import json
 from multiprocessing import Pool
 from pathlib import Path
+from pprint import pprint
 
 import pandas as pd
 import pkg_resources
@@ -78,8 +77,8 @@ def get_parser():
 def main(
         clean_data=True,
         data_kind='clean',
-        save_csvs=False,
         save_clean_csvs=False,
+        save_csvs=False,
         verbose=False,
 ):
     dfs = load_smac_data(data_kind=data_kind)
@@ -91,26 +90,25 @@ def main(
     if clean_data:
         dfs = clean_smac_data(dfs)
 
+    for sheet_name in dfs.keys():
+        if sheet_name in {'Codebook', 'digital'}:
+            continue
+        print(f'Validating {sheet_name} locations.')
+        validate_sheet_locations(dfs, sheet_name=sheet_name, data_kind=data_kind, verbose=verbose)
+
+    if verbose:
+        print('Summary of cleaned sheets:')
+        for label, df in sorted(dfs.items()):
+            print(f'{label}:\n{df.dtypes}\n\n')
+
     if save_clean_csvs:
         for sheet, df in sorted(dfs.items()):
             df.to_csv(f'../data/{data_kind}/all_paper_data_{sheet.strip().replace(" ", "_")}_clean.csv', index=False)
 
-    if verbose:
-        for label, df in sorted(dfs.items()):
-            print(f'{label}:\n{df.dtypes}\n\n')
-
-    from pprint import pprint
-
-    data_chiefdoms = set(dfs['Trigger_Ave'].Chiefdom.dropna().str.strip().unique())
-    data_sections = set(dfs['Trigger_Ave'].Section.dropna().str.strip().unique())
-
-    pprint(sorted(data_chiefdoms - set(sierra_leone.chiefdoms)))
-    pprint(data_sections - set(sierra_leone.sections))
-
 
 def load_smac_data(data_kind='clean'):
     return {
-        path.stem.replace('all_paper_data_', ''): pd.read_csv(path)
+        path.stem.replace('all_paper_data_', ''): pd.read_csv(path, parse_dates=[0])
         for path in sorted(Path(f'../data/{data_kind}').glob('*.csv'))
     }
 
@@ -136,6 +134,9 @@ def load_smac_data_old(path='../data/clean/all_paper_data.xlsx'):
 
 
 def clean_smac_data(dfs):
+    # Parse an additional date column
+    dfs['Follow_Up'].Date_of_dep = pd.to_datetime(dfs['Follow_Up'].Date_of_dep)
+
     clean_int_col_map = {'o': 0, 'O': 0, 'nan': 0}
     for i in range(100):
         clean_int_col_map[i] = i
@@ -233,6 +234,31 @@ def fix_spelling_errors(sample, threshold=1):
         return suggestion.term
     else:
         return sample
+
+
+def validate_sheet_locations(dfs, sheet_name, data_kind, verbose=False):
+    districts = set(dfs[sheet_name].District.dropna().str.strip().unique())
+    district_issues = sorted(districts - set(sierra_leone.districts))
+    with open(f'../data/column_discrepancies/{data_kind}_{sheet_name}_Districts.txt', 'w') as f:
+        pprint(district_issues, stream=f)
+
+    chiefdoms = set(dfs[sheet_name].Chiefdom.dropna().str.strip().unique())
+    chiefdom_issues = sorted(chiefdoms - set(sierra_leone.chiefdoms))
+    with open(f'../data/column_discrepancies/{data_kind}_{sheet_name}_Chiefdoms.txt', 'w') as f:
+        pprint(chiefdom_issues, stream=f)
+
+    sections = set(dfs[sheet_name].Section.dropna().str.strip().unique())
+    section_issues = sorted(sections - set(sierra_leone.sections))
+    with open(f'../data/column_discrepancies/{data_kind}_{sheet_name}_Sections.txt', 'w') as f:
+        pprint(section_issues, stream=f)
+
+    if verbose:
+        print(
+            f'{sheet_name} - {data_kind}:'
+            f'\n\tDistrict Issues: {len(district_issues)}'
+            f'\n\tChiefdom Issues: {len(chiefdom_issues)}'
+            f'\n\tSection Issues: {len(section_issues)}\n\n'
+        )
 
 
 if __name__ == '__main__':
