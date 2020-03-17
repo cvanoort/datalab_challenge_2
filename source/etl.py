@@ -5,7 +5,6 @@ import argparse
 import json
 from multiprocessing import Pool
 from pathlib import Path
-from pprint import pprint
 
 import pandas as pd
 import pkg_resources
@@ -93,7 +92,6 @@ def main(
     for sheet_name in dfs.keys():
         if sheet_name in {'Codebook', 'digital'}:
             continue
-        print(f'Validating {sheet_name} locations.')
         validate_sheet_locations(dfs, sheet_name=sheet_name, data_kind=data_kind, verbose=verbose)
 
     if verbose:
@@ -137,7 +135,7 @@ def clean_smac_data(dfs):
     # Parse an additional date column
     dfs['Follow_Up'].Date_of_dep = pd.to_datetime(dfs['Follow_Up'].Date_of_dep)
 
-    clean_int_col_map = {'o': 0, 'O': 0, 'nan': 0}
+    clean_int_col_map = IDDict({'o': 0, 'O': 0, 'nan': 0})
     for i in range(100):
         clean_int_col_map[i] = i
 
@@ -157,15 +155,26 @@ def clean_smac_data(dfs):
     )
 
     # Map the time since last ebola case question from a string to an approximate Timedelta
-    t_q1_map = {
+    t_q1_map = IDDict({
         'last week': pd.Timedelta(days=7),
         '2-3 weeks': pd.Timedelta(days=17, hours=6),
         '3weeks': pd.Timedelta(days=21),
         '4 weeks or more': pd.Timedelta(days=28),
         '4 weeks 0r m0re': pd.Timedelta(days=28),
         '5 weeks or more': pd.Timedelta(days=35),
-    }
+    })
     dfs['Trigger_Other'].t_q1 = dfs['Trigger_Other'].t_q1.str.strip().str.lower().map(t_q1_map)
+
+    # Map the t_q5 column from a string response to a categorical variable
+    t_q5_map = IDDict({
+        'very low': 0,
+        'low': 1,
+        'medium': 2,
+        'high': 3,
+        'very high': 4,
+        'very hig': 4,
+    })
+    dfs['Trigger_Other'].t_q5 = dfs['Trigger_Other'].t_q5.str.strip().str.lower().map(t_q5_map)
 
     # Clean up the text based columns
     sheets = ['Trigger_Other', 'Follow_Up_Other']
@@ -181,7 +190,7 @@ def clean_smac_data(dfs):
                 make_spelling_correction_map(dfs, sheet=sheet, col=str_col)
 
             with open(map_file) as f:
-                str_col_map = json.load(f)
+                str_col_map = IDDict(json.load(f))
             dfs[sheet][str_col] = (
                 dfs[sheet][str_col]
                     .str.lower()
@@ -190,31 +199,49 @@ def clean_smac_data(dfs):
                     .map(str_col_map)
             )
 
-    # Map the t_q5 column from a string response to a categorical variable
-    t_q5_map = {
-        'very low': 0,
-        'low': 1,
-        'medium': 2,
-        'high': 3,
-        'very high': 4,
-        'very hig': 4,
-    }
-    dfs['Trigger_Other'].t_q5 = dfs['Trigger_Other'].t_q5.str.strip().str.lower().map(t_q5_map)
+    # Clean up the location columns
+    sheets = ['Follow_Up', 'Trigger_NA', 'Trigger_Ave', 'Trigger_Other', 'Follow_Up_Other']
+    loc_cols = ['District', 'Chiefdom', 'Section']
+
+    if not check_location_maps():
+        print('Constructing default location mappings.')
+        make_location_maps(dfs)
+
+    for loc_col in loc_cols:
+        map_file = f'../data/column_maps/{loc_col.lower()}_map.json'
+        for sheet in sheets:
+            with open(map_file) as f:
+                loc_col_map = IDDict(json.load(f))
+            dfs[sheet][loc_col] = dfs[sheet][loc_col].str.strip().str.replace('  ', ' ').map(loc_col_map)
 
     return dfs
 
 
 def make_spelling_correction_map(dfs, sheet, col):
-    positions = sorted(
+    values = sorted(
         dfs[sheet][col].str.lower().str.strip(' .,\"').str.replace('  ', ' ').dropna().unique()
     )
     with Pool() as pool:
-        fixed_positions = pool.map(fix_spelling_errors, positions)
+        fixed_values = pool.map(fix_spelling_errors, values)
 
     with open(f'../data/column_maps/{sheet}_{col}_map.json', 'w') as f:
         json.dump({
             x: y
-            for x, y in zip(positions, fixed_positions)
+            for x, y in zip(values, fixed_values)
+        },
+            f,
+            indent=4,
+            sort_keys=True,
+        )
+
+
+def make_column_correction_map(dfs, sheet, col):
+    values = sorted(dfs[sheet][col].dropna().str.strip().unique())
+
+    with open(f'../data/column_maps/{sheet}_{col}_map.json', 'w') as f:
+        json.dump({
+            x: y
+            for x, y in zip(values, values)
         },
             f,
             indent=4,
@@ -246,20 +273,23 @@ def validate_sheet_locations(
     output_path = Path(output_path)
     output_path.mkdir(exist_ok=True, parents=True)
 
+    if verbose:
+        print(f'Validating {sheet_name} locations.')
+
     districts = set(dfs[sheet_name].District.dropna().str.strip().unique())
     district_issues = sorted(districts - set(sierra_leone.districts))
-    with open(output_path / f'{data_kind}_{sheet_name}_Districts.txt', 'w') as f:
-        pprint(district_issues, stream=f)
+    with open(output_path / f'{data_kind}_{sheet_name}_Districts.json', 'w') as f:
+        json.dump(district_issues, f, indent=4)
 
     chiefdoms = set(dfs[sheet_name].Chiefdom.dropna().str.strip().unique())
     chiefdom_issues = sorted(chiefdoms - set(sierra_leone.chiefdoms))
-    with open(output_path / f'{data_kind}_{sheet_name}_Chiefdoms.txt', 'w') as f:
-        pprint(chiefdom_issues, stream=f)
+    with open(output_path / f'{data_kind}_{sheet_name}_Chiefdoms.json', 'w') as f:
+        json.dump(chiefdom_issues, f, indent=4)
 
     sections = set(dfs[sheet_name].Section.dropna().str.strip().unique())
     section_issues = sorted(sections - set(sierra_leone.sections))
-    with open(output_path / f'{data_kind}_{sheet_name}_Sections.txt', 'w') as f:
-        pprint(section_issues, stream=f)
+    with open(output_path / f'{data_kind}_{sheet_name}_Sections.json', 'w') as f:
+        json.dump(section_issues, f, indent=4)
 
     if verbose:
         print(
@@ -268,6 +298,52 @@ def validate_sheet_locations(
             f'\n\tChiefdom Issues: {len(chiefdom_issues)}'
             f'\n\tSection Issues: {len(section_issues)}\n\n'
         )
+
+
+def check_location_maps(path='../data/column_maps'):
+    return (
+            Path(f'{path}/district_map.json').is_file() and
+            Path(f'{path}/chiefdom_map.json').is_file() and
+            Path(f'{path}/section_map.json').is_file()
+    )
+
+
+def make_location_maps(dfs, sheets=None, output_path='../data/column_maps'):
+    """
+    Creates a single, unified mapping to clean up the location columns (District,
+    Chiefdom, and Section) across all of the sheets that have them.
+
+    Args:
+        dfs:
+        sheets:
+        output_path:
+    """
+    output_path = Path(output_path)
+    output_path.mkdir(exist_ok=True, parents=True)
+    sheets = sheets or ['Follow_Up', 'Trigger_NA', 'Trigger_Ave', 'Trigger_Other', 'Follow_Up_Other']
+    loc_cols = ['District', 'Chiefdom', 'Section']
+
+    for loc_col in loc_cols:
+        mapping = dict()
+        for sheet in sheets:
+            sheet_map = {
+                x: x
+                for x in dfs[sheet][loc_col].str.strip().str.replace('  ', ' ').dropna().unique()
+            }
+            mapping.update(sheet_map)
+
+        with open(f'../data/column_maps/{loc_col.lower()}_map.json', 'w') as f:
+            json.dump(
+                mapping,
+                f,
+                indent=4,
+                sort_keys=True,
+            )
+
+
+class IDDict(dict):
+    def __missing__(self, key):
+        return key
 
 
 if __name__ == '__main__':

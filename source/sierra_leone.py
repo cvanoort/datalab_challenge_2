@@ -1200,7 +1200,7 @@ chiefdom2sections = {
         'Upper Kuiva',
     ],
     'Mono Sakrim': [
-        'Gbomotie',
+        'Gbomoti',
         'Kemoh',
         'Makpondo',
         'Masanda Majagbe',
