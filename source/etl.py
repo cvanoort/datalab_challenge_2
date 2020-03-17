@@ -236,20 +236,29 @@ def fix_spelling_errors(sample, threshold=1):
         return sample
 
 
-def validate_sheet_locations(dfs, sheet_name, data_kind, verbose=False):
+def validate_sheet_locations(
+        dfs,
+        sheet_name,
+        data_kind,
+        output_path='../data/column_discrepancies',
+        verbose=False,
+):
+    output_path = Path(output_path)
+    output_path.mkdir(exist_ok=True, parents=True)
+
     districts = set(dfs[sheet_name].District.dropna().str.strip().unique())
     district_issues = sorted(districts - set(sierra_leone.districts))
-    with open(f'../data/column_discrepancies/{data_kind}_{sheet_name}_Districts.txt', 'w') as f:
+    with open(output_path / f'{data_kind}_{sheet_name}_Districts.txt', 'w') as f:
         pprint(district_issues, stream=f)
 
     chiefdoms = set(dfs[sheet_name].Chiefdom.dropna().str.strip().unique())
     chiefdom_issues = sorted(chiefdoms - set(sierra_leone.chiefdoms))
-    with open(f'../data/column_discrepancies/{data_kind}_{sheet_name}_Chiefdoms.txt', 'w') as f:
+    with open(output_path / f'{data_kind}_{sheet_name}_Chiefdoms.txt', 'w') as f:
         pprint(chiefdom_issues, stream=f)
 
     sections = set(dfs[sheet_name].Section.dropna().str.strip().unique())
     section_issues = sorted(sections - set(sierra_leone.sections))
-    with open(f'../data/column_discrepancies/{data_kind}_{sheet_name}_Sections.txt', 'w') as f:
+    with open(output_path / f'{data_kind}_{sheet_name}_Sections.txt', 'w') as f:
         pprint(section_issues, stream=f)
 
     if verbose:
