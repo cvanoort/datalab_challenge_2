@@ -43,3 +43,11 @@ different evaluation metrics?
  - Chiefdoms may be cut into "Sections" ([ref 1](https://www.humanitarianresponse.info/sites/www.humanitarianresponse.info/files/documents/files/ocha_sle_ref_kono_landscape.pdf), [ref2](https://reliefweb.int/sites/reliefweb.int/files/resources/ocha_sle_ref_bonthe_landscape.pdf))
  - District maps can be found [here](https://reliefweb.int/updates?source=1503&format=12.12570&advanced-search=(PC211)#content)
  
+## Repo Notes:
+ - When looking at the column discrepancies that are output by `etl.py`, it can 
+   be useful to combine multiple related discrepancy files with the following 
+   command:
+    ```bash
+    cat *.json | sed 's/,//g' | grep -v -E '\[|\]' | sort | uniq 
+    ```
+   In particular, you can reduce the globbing to a category of interest, such as `cat *Chiefdoms.json ...`.

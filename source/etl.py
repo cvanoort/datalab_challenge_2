@@ -87,7 +87,7 @@ def main(
             df.to_csv(f'../data/{data_kind}/all_paper_data_{sheet.strip().replace(" ", "_")}.csv', index=False)
 
     if clean_data:
-        dfs = clean_smac_data(dfs)
+        dfs = clean_smac_data(dfs, verbose=verbose)
 
     for sheet_name in dfs.keys():
         if sheet_name in {'Codebook', 'digital'}:
@@ -131,7 +131,7 @@ def load_smac_data_old(path='../data/clean/all_paper_data.xlsx'):
     return dfs
 
 
-def clean_smac_data(dfs):
+def clean_smac_data(dfs, verbose=False):
     # Parse an additional date column
     dfs['Follow_Up'].Date_of_dep = pd.to_datetime(dfs['Follow_Up'].Date_of_dep)
 
@@ -191,8 +191,8 @@ def clean_smac_data(dfs):
 
             with open(map_file) as f:
                 str_col_map = IDDict(json.load(f))
-            dfs[sheet][str_col] = (
-                dfs[sheet][str_col]
+            dfs[sheet].loc[:, str_col] = (
+                dfs[sheet].loc[:, str_col]
                     .str.lower()
                     .str.strip(' .,\"')
                     .str.replace('  ', ' ')
@@ -209,10 +209,12 @@ def clean_smac_data(dfs):
 
     for loc_col in loc_cols:
         map_file = f'../data/column_maps/{loc_col.lower()}_map.json'
+        if verbose:
+            print(f'Loading map file: {map_file}')
+        with open(map_file) as f:
+            loc_col_map = IDDict(json.load(f))
         for sheet in sheets:
-            with open(map_file) as f:
-                loc_col_map = IDDict(json.load(f))
-            dfs[sheet][loc_col] = dfs[sheet][loc_col].str.strip().str.replace('  ', ' ').map(loc_col_map)
+            dfs[sheet].loc[:, loc_col] = dfs[sheet].loc[:, loc_col].str.strip().map(loc_col_map)
 
     return dfs
 
