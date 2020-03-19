@@ -344,6 +344,13 @@ def make_location_maps(dfs, sheets=None, output_path='../data/column_maps'):
 
 
 class IDDict(dict):
+    """
+    pandas.Series.map takes a dictionary and uses it to modify values in the series.
+    When a value in the series does not have mapping defined by the dictionary,
+    the default behavior is to replace that value with NaN. In order to avoid
+    manipulating the raw data more than intended, this dictionary creates an identity
+    mapping for missing keys making the map function less destructive.
+    """
     def __missing__(self, key):
         return key
 
