@@ -1,5 +1,7 @@
 from collections import Counter
+from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -26,13 +28,19 @@ def main():
     with pd.option_context('display.precision', 2):
         report(global_stats, sheet_stats)
 
+    make_column_bar_figure(
+        sheet_stats,
+        filter_upper=100.,
+        filter_lower=1.,
+    )
+
 
 def calculate_global_stats(name2sheet_stats):
     global_stats = Counter()
 
     for name, sheet_stats in name2sheet_stats.items():
         sheet_stats = Counter(sheet_stats)
-        for key in ['row_stats', 'col_stats']:
+        for key in ['row_stats', 'col_stats', 'col_labels', 'col_total_rel_vals']:
             sheet_stats.pop(key)
 
         global_stats += sheet_stats
@@ -116,6 +124,8 @@ def get_sheet_stats(raw_sheet, clean_1_sheet, clean_2_sheet):
         'n_total_edits_rel': n_total_edits_rel,
         'row_stats': row_stats,
         'col_stats': col_stats,
+        'col_total_rel_vals': 100. * col_diff_3 / n_rows,
+        'col_labels': list(raw_sheet.columns),
     }
 
 
@@ -174,6 +184,67 @@ def display_describe(df, columns=None, tab_level=0, header=False, index=False):
         tab_str +
         df.to_string(header=header, index=index).replace('\n', f'\n{tab_str}')
     )
+
+
+def make_column_bar_figure(
+        sheet_stats,
+        ignore_cols=None,
+        save_path='../figures',
+        save_name='impacted_columns.png',
+        bar_width=1000,
+        bar_spacing=200,
+        filter_upper=None,
+        filter_lower=None,
+):
+    labels = None
+    values = None
+    for sheet, stats in sheet_stats.items():
+        labels_ = [f'{sheet} - {col_label}' for col_label in stats['col_labels']]
+        values_ = stats['col_total_rel_vals']
+
+        if labels and values:
+            labels.extend(labels_)
+            values.extend(values_)
+        else:
+            labels = labels_
+            values = list(values_)
+
+    zipped = list(zip(labels, values))
+
+    # Sort alphabetically, then by values
+    zipped.sort(key=lambda x: x[0])
+    zipped.sort(key=lambda x: x[1])
+
+    if ignore_cols:
+        zipped = list(filter(lambda x: x[0] not in ignore_cols, zipped))
+
+    print('Column Impact: Outliers')
+    for label, value in reversed(zipped):
+        if (value <= filter_lower) or (value >= filter_upper):
+            print(f'\t{label}: {value}')
+
+    filter_upper = filter_upper or (max(values) + 1)
+    filter_lower = filter_lower or (min(values) - 1)
+    zipped = list(filter(lambda x: filter_lower < x[1] < filter_upper, zipped))
+
+    labels, values = zip(*zipped)
+
+    bar_locs = np.arange(len(labels)) * bar_width
+
+    plt.subplots()
+    plt.barh(bar_locs, values, height=bar_width - bar_spacing)
+    plt.yticks(bar_locs[::3], labels[::3])
+    plt.title('Data Cleaning Impact By Column')
+    plt.ylabel('Sheet: Column')
+    plt.xlabel('Relative Change')
+    plt.xlim(-5, 105)
+    plt.tight_layout()
+
+    path = Path(save_path) / save_name
+    path.parent.mkdir(exist_ok=True, parents=True)
+
+    plt.savefig(path, dpi=400, transparent=True)
+    plt.close('all')
 
 
 if __name__ == '__main__':
